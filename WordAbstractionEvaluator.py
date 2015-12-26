@@ -2,15 +2,22 @@ import json
 import os
 from collections import namedtuple
 
+from DAL_AbstractionDB.DbAccess import ServerConnection
+
 EVALUATIONS_JSON = "Evaluations.json"
 INPUT_FILE = "Output.txt"
 
 WordAbstractionValuePair = namedtuple("WordAbstractionValue", "word abstraction_value")
 
 
-def get_abs_value_for_word(w):
-    import random
-    return random.randint(1, 10)
+def get_abstraction_value_for_word(word, conn):
+    cursor = conn.cursor()
+    cursor.execute("SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE_ABSTRACT.PHRASE='{0}'".format(word.lower()))
+    query_result = cursor.fetchone()
+    if query_result:
+        return query_result[0]
+    else:
+        return -1.0
 
 
 def get_non_metaphor_sets():
@@ -21,13 +28,23 @@ def get_non_metaphor_sets():
 
 def get_all_word_abstraction_sets(non_metaphor_sets):
     list_of_word_abstraction_sets = []
-    for non_metaphor_set in non_metaphor_sets:
-        word_abstraction_set = []
-        non_metaphor_words = non_metaphor_set.rsplit()
-        for word in non_metaphor_words:
-            abs_value = get_abs_value_for_word(word)
-            word_abstraction_set.append(WordAbstractionValuePair(word, abs_value))
-        list_of_word_abstraction_sets.append(word_abstraction_set)
+    not_found = []
+    with ServerConnection("sqlsrv.cs.bgu.ac.il", "noamant", "1qa@WS") as conn:
+        for non_metaphor_set in non_metaphor_sets:
+            word_abstraction_set = []
+            non_metaphor_words = non_metaphor_set.rsplit()
+            for word in non_metaphor_words:
+                abs_value = get_abstraction_value_for_word(word, conn)
+                pair = WordAbstractionValuePair(word, abs_value)
+                print "Paired! {0}: {1}".format(pair.word, pair.abstraction_value)
+                if pair.abstraction_value == -1.0:
+                    not_found.append(pair)
+                word_abstraction_set.append(pair)
+            list_of_word_abstraction_sets.append(word_abstraction_set)
+
+    print "Didn't find {0} words!".format(len(not_found))
+    for pair in not_found:
+        print pair.word
     return list_of_word_abstraction_sets
 
 
