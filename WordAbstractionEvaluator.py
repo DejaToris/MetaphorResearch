@@ -1,3 +1,7 @@
+# this app receives a list of words and retrieves the abstraction value for each word.
+# expected input: a .txt file of sets of words separated by spaces. Each set is a new line.
+# output: a list of sets of couplets <word, value>, dumped into a JSON and a pretty .txt.
+
 import json
 import os
 from collections import namedtuple
@@ -5,6 +9,7 @@ from collections import namedtuple
 from DAL_AbstractionDB.DbAccess import ServerConnection
 
 EVALUATIONS_JSON = "Evaluations.json"
+EVALUATIONS_TXT = "Evaluations.txt"
 INPUT_FILE = "Output.txt"
 
 WordAbstractionValuePair = namedtuple("WordAbstractionValue", "word abstraction_value")
@@ -54,12 +59,20 @@ def dump_to_json(list_of_word_abstraction_sets):
         print "Output file is in " + os.path.abspath(EVALUATIONS_JSON)
 
 
+def pretty_dump_to_txt(list_of_word_abstraction_sets):
+    with open(EVALUATIONS_TXT, 'w') as evaluations:
+        for word_set in list_of_word_abstraction_sets:
+            evaluations.write("%s \n" % str(word_set))
+
+
 def main():
     non_metaphor_sets = get_non_metaphor_sets()
 
     list_of_word_abstraction_sets = get_all_word_abstraction_sets(non_metaphor_sets)
 
     dump_to_json(list_of_word_abstraction_sets)
+
+    pretty_dump_to_txt(list_of_word_abstraction_sets)
 
 
 if __name__ == "__main__":
