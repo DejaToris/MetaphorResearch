@@ -1,0 +1,17 @@
+# This class manages a connection to a pre-existing .xlsx fle.
+
+import xlwings as xl
+
+
+class XLConnection(object):
+    def __enter__(self):
+        self.workbook = xl.Workbook(self.full_name)
+        return self.workbook
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.workbook.close()
+
+    def __init__(self, filename, filepath):
+        self.name = filename
+        self.path = filepath
+        self.full_name = self.filepath + self.filename
