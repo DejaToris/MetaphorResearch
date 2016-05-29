@@ -1,0 +1,15 @@
+dataset mockups:
+- common objects per verb
+- synonymous verbs per verb
+- abstraction value per word
+
+main algorithm:
+for input VERB:
+    L1 = common abstract objects of VERB
+    L2 = concrete synonyms of VERB
+        L2.i = common abstract objects of L2[i]
+
+    sort L1 by item_prototypicality:
+        for noun in L1:
+            item_prototypicality = ranking_function(L1 rank, L2 ranks)
+    return L1
