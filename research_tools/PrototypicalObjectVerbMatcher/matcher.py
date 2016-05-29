@@ -16,9 +16,21 @@ def get_prototypical_objects_for(verb, number_of_objects):
     return [verb] * number_of_objects
 
 
+def contains_letters_only(word):
+    return word.isalpha()
+
+
+def sanitize_verb(verb):
+    if not contains_letters_only(verb):
+        raise Exception("The word '{0}' is not a valid verb. Should contain letters only.".format(verb))
+    sanitized_verb = verb.lower()
+    return sanitized_verb
+
+
 def main():
     args = get_cli_arguments()
-    prototypical_objects = get_prototypical_objects_for(args.verb, args.number_of_objects_to_return)
+    sanitized_verb = sanitize_verb(args.verb)
+    prototypical_objects = get_prototypical_objects_for(sanitized_verb, args.number_of_objects_to_return)
     print(prototypical_objects)
 
 
