@@ -1,4 +1,11 @@
 import argparse
+import verb
+from research_tools.WordAbstractionEvaluator.DAL_AbstractionDB import DbAccess
+from research_tools.WordAbstractionEvaluator import WordAbstractionEvaluator
+from nltk.corpus import wordnet
+
+
+MINIMAL_ABSTRACTION_VALUE = 0.5
 
 
 def get_cli_arguments():
@@ -13,27 +20,68 @@ def get_cli_arguments():
 
 
 def filter_abstract_items(common_object_list):
-    # go to abstraction value DB, get values, remove all below threshold, return.
-    for noun in common_object_list:
-        if db.get_abstrast_value(noun) > 0.5:
-            common_object_list.remove(noun)
-    return common_object_list
+    filtered_objects = []
+    with DbAccess.get_connection(DbAccess.AvailableConnections.test) as conn:
+        for noun in common_object_list:
+            if MINIMAL_ABSTRACTION_VALUE > WordAbstractionEvaluator.get_abstraction_value_for_word(noun, conn):
+                filtered_objects.append(noun)
+    return filtered_objects
+
+
+class RatedObject(object):
+    def __init__(self, word):
+        self.word = word
+        self.ranking = 0
+
+    def __repr__(self):
+        return "word: '{0}'\tranking: {1}".format(self.word, self.ranking)
 
 
 def calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects):
-    # implement algorithm here
+    rated_objects = create_zero_ranked_object_list(abstract_object_list)
 
-    pass
+    for current_object in rated_objects:
+        for synonym in verb_synonym_list:
+            current_object.ranking += get_single_word_ranking(current_object.word, synonym)
+
+    return sorted(rated_objects,
+                  key=lambda obj: obj.ranking,  # Sort by commonness rating
+                  reverse=True)                 # Descending
+
+
+def get_single_word_ranking(word, synonym):
+    try:
+        # TODO how to rank? should probably be relative between 1 and 0, 0 means non-existant, 1 means the most common
+        return len(synonym.common_objects) - synonym.common_objects.index(word)
+    except ValueError:  # object doesn't exist in synonym
+        return 0
+
+
+def create_zero_ranked_object_list(abstract_object_list):
+    rated_objects = [RatedObject(abs_object) for abs_object in abstract_object_list]
+    return rated_objects
+
+
+def get_synonym_list(target_verb):
+    synonyms = wordnet.synsets(target_verb, pos=wordnet.VERB)
+    synonym_verbs = []
+    for synonym in synonyms:
+        # TODO figure this out
+        # TODO remove duplicates
+        synonym_word = synonym.lemmas()[0].name()
+        synonym_verbs.append(verb.Verb(synonym_word))
+
+    return synonym_verbs
 
 
 def get_prototypical_objects_for(target_verb, number_of_objects):
-    common_object_list = target_verb.get_common_object_list  # or maybe WordNet can do this?
-    abstract_object_list = filter_abstract_items(common_object_list)
-    verb_synonym_list = nltk.get_synonym_list(target_verb)
+    target_verb = verb.Verb(target_verb)
+    target_verb.populate_common_objects()
+    abstract_object_list = filter_abstract_items(target_verb.common_objects)
+    verb_synonym_list = get_synonym_list(target_verb.word)
     for synonym_verb in verb_synonym_list:
-        synonym_verb.get_common_object_list()
+        synonym_verb.populate_common_objects()
     prototypical_object_list = calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects)
-
 
     return prototypical_object_list
 
