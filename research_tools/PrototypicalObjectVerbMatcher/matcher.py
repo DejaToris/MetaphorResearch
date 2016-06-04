@@ -12,18 +12,40 @@ def get_cli_arguments():
     return parser.parse_args()
 
 
-def get_prototypical_objects_for(verb, number_of_objects):
-    return [verb] * number_of_objects
+def filter_abstract_items(common_object_list):
+    # go to abstraction value DB, get values, remove all below threshold, return.
+    for noun in common_object_list:
+        if db.get_abstrast_value(noun) > 0.5:
+            common_object_list.remove(noun)
+    return common_object_list
+
+
+def calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects):
+    # implement algorithm here
+
+    pass
+
+
+def get_prototypical_objects_for(target_verb, number_of_objects):
+    common_object_list = target_verb.get_common_object_list  # or maybe WordNet can do this?
+    abstract_object_list = filter_abstract_items(common_object_list)
+    verb_synonym_list = nltk.get_synonym_list(target_verb)
+    for synonym_verb in verb_synonym_list:
+        synonym_verb.get_common_object_list()
+    prototypical_object_list = calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects)
+
+
+    return prototypical_object_list
 
 
 def contains_letters_only(word):
     return word.isalpha()
 
 
-def sanitize_verb(verb):
-    if not contains_letters_only(verb):
-        raise Exception("The word '{0}' is not a valid verb. Should contain letters only.".format(verb))
-    sanitized_verb = verb.lower()
+def sanitize_verb(target_verb):
+    if not contains_letters_only(target_verb):
+        raise Exception("The word '{0}' is not a valid verb. Should contain letters only.".format(target_verb))
+    sanitized_verb = target_verb.lower()
     return sanitized_verb
 
 
