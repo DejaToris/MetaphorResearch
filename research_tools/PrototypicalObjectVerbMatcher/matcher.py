@@ -1,6 +1,7 @@
 import argparse
 import COCA
 
+
 def get_cli_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("verb", type=str, help="The target verb.")
@@ -20,15 +21,20 @@ def filter_abstract_items(common_object_list):
     return common_object_list
 
 
+def fake_get_synonyms(verb):
+    return ["testsynonym"]
+
+
 def calculate_prototypical_objects(target_verb):
     objects_counter = ObjectsCounter(target_verb)
-    all_verbs = nltk.get_synonyms(target_verb)
+    all_verbs = fake_get_synonyms(target_verb)
     for verb in all_verbs:
         common_objects = COCA.get_common_object_list(verb)
         for obj in common_objects:
-            objects_counter.inc_object_prototypicality(obj) # if exists already, +1
+            objects_counter.inc_object_prototypicality(obj)  # if exists already, +1
 
-    return objects_counter.get_objects_sorted_by_prototypicality
+    return objects_counter.get_objects_sorted_by_prototypicality()
+
 
 class ObjectsCounter():
     def __init__(self, target_verb):
@@ -44,14 +50,13 @@ class ObjectsCounter():
 
     def get_objects_sorted_by_prototypicality(self):
         return sorted(
-            self.countable_objs.items(),    # All objects and their values
-            key=lambda countable_obj: countable_obj[1], # sort by count
-            reverse=True)   # sort descending
-    
-def calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects):
-    # implement algorithm here
+            self.countable_objs.items(),  # All objects and their values
+            key=lambda countable_obj: countable_obj[1],  # sort by count
+            reverse=True)  # sort descending
 
-    pass
+
+#def calculate_prototypical_objects(abstract_object_list, verb_synonym_list, number_of_objects):
+    # implement algorithm here
 
 
 ## def get_prototypical_objects_for(target_verb, number_of_objects):
