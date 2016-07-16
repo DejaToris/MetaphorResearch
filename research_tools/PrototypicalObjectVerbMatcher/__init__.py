@@ -1,3 +1,4 @@
 import matcher
 import COCA
-import verb
+import ObjectsCounter
+import synonyms
