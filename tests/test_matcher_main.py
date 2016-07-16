@@ -12,3 +12,8 @@ class TestMatcherMain(TestCase):
         self.assertEqual(research_tools.protoobj_matcher.matcher.sanitize_verb("CAPS"), "caps")
         self.assertRaises(research_tools.protoobj_matcher.matcher.sanitize_verb("a word"))
         self.assertRaises(research_tools.protoobj_matcher.matcher.sanitize_verb("w0rd"))
+
+    def test_inc_object_prototypicality(self):
+        o = research_tools.protoobj_matcher.matcher.ObjectsCounter("testverb")
+        o.
+        self.assertEqual(o.verb, "testverb")

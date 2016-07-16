@@ -13,3 +13,29 @@ for input VERB:
         for noun in L1:
             item_prototypicality = ranking_function(L1 rank, L2 ranks)
     return L1
+
+what we need to do:
+    calculate_prototypical_objects for target_verb
+        objects_counter = ObjectsCounter(target_verb)
+        all verbs = get synonyms (target_verb)
+        for verb in all_verbs:
+            common_objects = get_common_objs(verb)
+            for obj in common_objects:
+                objects_counter.inc_object_prototypicality(obj) # if exists already, +1
+
+        return objects_counter.get_objects_sorted_by_prototypicality
+
+class ObjectsCounter():
+    def __init__(target_verb):
+        self.verb = target_verb
+        self.countable_objs = {}
+        common_objs = get_common_objs(self.verb)
+        for obj in common_objs:
+            self.countable_objs[obj] = 0
+
+    def inc_object_prototypicality(self, object_word):
+        if self.countable_objs.has_key(object_word):
+            self.countable_objs[object_word] += 1
+
+    def get_objects_sorted_by_prototypicality(self):
+        sort and return :)
