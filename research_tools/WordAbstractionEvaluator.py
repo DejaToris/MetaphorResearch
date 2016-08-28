@@ -6,7 +6,7 @@ import json
 import os
 from collections import namedtuple
 
-from DAL_AbstractionDB.DbAccess import ServerConnection
+from DbAccess import ServerConnection
 
 EVALUATIONS_JSON = "Evaluations.json"
 EVALUATIONS_TXT = "Evaluations.txt"
