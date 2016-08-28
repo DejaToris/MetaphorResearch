@@ -1,10 +1,10 @@
 import argparse
 
-import COCA
-from research_tools.PrototypicalObjectVerbMatcher.ObjectsCounter import ObjectsCounter
-from research_tools.PrototypicalObjectVerbMatcher.synonyms import get_synonyms_for
+from ObjectsCounter import ObjectsCounter
+from synonyms import get_synonyms_for
 from ..WordAbstractionEvaluator.DAL_AbstractionDB import DbAccess as AbstractionDB
 from ..WordAbstractionEvaluator.WordAbstractionEvaluator import get_abstraction_value_for_word
+import COCA
 
 MINIMAL_ABSTRACTION_VALUE = 0.5
 
@@ -35,7 +35,7 @@ def calculate_prototypical_objects(target_verb, amount_of_objects):
         for verb in all_verbs:
             common_objects = COCA.get_common_object_list(verb)
             for obj in common_objects:
-                objects_counter.inc_object_prototypicality(obj)
+                objects_counter.inc_object_prototypicality(obj.lemma)
 
     return objects_counter.get_objects_sorted_by_prototypicality()
 

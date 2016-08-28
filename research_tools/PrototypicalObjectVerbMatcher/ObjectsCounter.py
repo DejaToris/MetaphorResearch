@@ -1,13 +1,15 @@
-from research_tools.PrototypicalObjectVerbMatcher import COCA
+import COCA
 
 
-class ObjectsCounter:
+class ObjectsCounter(object):
     def __init__(self, target_verb):
         self.verb = target_verb
         self.countable_objs = {}
+
+        # Need to initialize objects for the target verb only.
         common_objs = COCA.get_common_object_list(self.verb)
         for obj in common_objs:
-            self.countable_objs[obj] = 0
+            self.countable_objs[obj.lemma] = 0
 
     def inc_object_prototypicality(self, object_word):
         if self.countable_objs.has_key(object_word):

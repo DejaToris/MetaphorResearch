@@ -7,12 +7,10 @@ COCAResultTuple = namedtuple('QueryResult', 'run_id freq calcMI SearchCIid Searc
 def get_common_object_list(verb):
     # should call get_all_bigrams_for_word with both 1 and 2 spanRight
     # TODO find a clever way to combine the two lists to merge dups and order by freq
-    if "testverb" == verb:
-        return ["testobj1", "testobj2", "testobj3"]
-    elif "testsynonym" == verb:
-        return ["testobj3", "testobj4"]
-    return []  # TODO connect to DB and get the verbs
+    with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
+        common_objects = get_all_bigrams_for_word(verb, 0, 1, dbConn)
 
+    return common_objects
 
 def get_all_bigrams_for_word(word, spanLeft, spanRight, conn):
     # spans = size of window to look for object.
