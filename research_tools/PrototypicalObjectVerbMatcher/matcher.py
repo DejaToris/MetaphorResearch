@@ -22,7 +22,8 @@ def get_cli_arguments():
 
 def filter_abstract_items(common_object_list):
     # TODO Test with the BGU connection as well.
-    with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.test) as dbConn:
+    # TODO alter method to match the current data structure of the object_list
+    with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
         return [noun for noun in common_object_list if
                 get_abstraction_value_for_word(noun, dbConn) > MINIMAL_ABSTRACTION_VALUE]
 
@@ -30,10 +31,11 @@ def filter_abstract_items(common_object_list):
 def calculate_prototypical_objects(target_verb, amount_of_objects):
     objects_counter = ObjectsCounter(target_verb)
     all_verbs = get_synonyms_for(target_verb)
-    for verb in all_verbs:
-        common_objects = COCA.get_common_object_list(verb)
-        for obj in common_objects:
-            objects_counter.inc_object_prototypicality(obj)
+    with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
+        for verb in all_verbs:
+            common_objects = COCA.get_common_object_list(verb)
+            for obj in common_objects:
+                objects_counter.inc_object_prototypicality(obj)
 
     return objects_counter.get_objects_sorted_by_prototypicality()
 
