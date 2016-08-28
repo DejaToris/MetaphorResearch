@@ -2,8 +2,8 @@ import argparse
 
 from ObjectsCounter import ObjectsCounter
 from synonyms import get_synonyms_for
-from ..WordAbstractionEvaluator.DAL_AbstractionDB import DbAccess as AbstractionDB
-from ..WordAbstractionEvaluator.WordAbstractionEvaluator import get_abstraction_value_for_word
+import DbAccess as AbstractionDB
+from WordAbstractionEvaluator import get_abstraction_value_for_word
 import COCA
 
 MINIMAL_ABSTRACTION_VALUE = 0.5

@@ -1,2 +1,5 @@
-import PrototypicalObjectVerbMatcher as protoobj_matcher
-import WordAbstractionEvaluator as abstraction_evaluator
+import matcher
+import COCA
+import ObjectsCounter
+import synonyms
+import DbAccess

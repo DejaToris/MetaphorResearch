@@ -1,6 +1,7 @@
 # manages connection to COCA website/DB
-from ..WordAbstractionEvaluator.DAL_AbstractionDB import DbAccess as AbstractionDB
+import DbAccess as AbstractionDB
 from collections import namedtuple
+import pymssql
 
 COCAResultTuple = namedtuple('QueryResult', 'run_id freq calcMI SearchCIid SearchPosType FoundCIid FoundPosType FoundWordCI spanLeft spanRight lemma')
 
@@ -17,11 +18,17 @@ def get_all_bigrams_for_word(word, spanLeft, spanRight, conn):
     # expected spans: Left - 0, Right - 1 or 2 (assuming Det or Adj)
     cursor = conn.cursor()
     cursor.execute("EXEC \"dbo\".\"GetNgrams\" \'{}\', \'2\', \'1\', \'{}\', \'{}\', \'0\'".format(word.lower(), spanLeft, spanRight))
-    query_result = cursor.fetchall()
-    if query_result:
-        return parse_bigrams(query_result)
-    else:
-        return -1.0
+    query_result = safe_fetch_all(cursor, word)
+    return parse_bigrams(query_result)
+
+
+def safe_fetch_all(cursor, word):
+    try:
+        query_result = cursor.fetchall()
+        return query_result
+    except pymssql.OperationalError as e:
+        print("Couldn't fetch results for {}. Error: {}".format(word, e.message))
+        return []
 
 
 def parse_bigrams(query_result):
