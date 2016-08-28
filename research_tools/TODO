@@ -1,41 +1,22 @@
-dataset mockups:
-- common objects per verb
-- synonymous verbs per verb
-- abstraction value per word
-
 main algorithm:
-for input VERB:
-    L1 = common abstract objects of VERB
-    L2 = concrete synonyms of VERB
-        L2.i = common abstract objects of L2[i]
+done and mostly working.
 
-    sort L1 by item_prototypicality:
-        for noun in L1:
-            item_prototypicality = ranking_function(L1 rank, L2 ranks)
-    return L1
+NGrams DB access
 
-what we need to do:
-    calculate_prototypical_objects for target_verb
-        objects_counter = ObjectsCounter(target_verb)
-        all verbs = get synonyms (target_verb)
-        for verb in all_verbs:
-            common_objects = get_common_objs(verb)
-            for obj in common_objects:
-                objects_counter.inc_object_prototypicality(obj) # if exists already, +1
+    CONCLUSIONS:
+    - the DB itself is the same as abstractionDB.
+    - there is an existing routine that returns NGrams:
+            "EXEC \"dbo\".\"GetNgrams\" \'VERB\', \'2\', \'1\', \'0\', \'1\', \'0\'"
+            note that one window to the left eliminates objects preceded by an adjective or a determiner.
+            find a way to combine the results of a 1 and 2 window?
+    - the output comes as a list of strings:
+            (1483785, 287, 7.051132629428506, 1251, 2, 1585, 1, u'lunch', 0, 1, u'lunch')
+    - what is mutual information (MI) and why is it important?
+     in this case MI is the last parameter in the input, might want to play with it.
 
-        return objects_counter.get_objects_sorted_by_prototypicality
 
-class ObjectsCounter():
-    def __init__(target_verb):
-        self.verb = target_verb
-        self.countable_objs = {}
-        common_objs = get_common_objs(self.verb)
-        for obj in common_objs:
-            self.countable_objs[obj] = 0
 
-    def inc_object_prototypicality(self, object_word):
-        if self.countable_objs.has_key(object_word):
-            self.countable_objs[object_word] += 1
-
-    def get_objects_sorted_by_prototypicality(self):
-        sort and return :)
+    TODO bullets:
+    - write method that utilizes the routine and combines 1-right and 2-right results
+    - write result parser that will serialize the output of the routine
+    - tests for days!
