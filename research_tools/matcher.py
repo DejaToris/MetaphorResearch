@@ -1,4 +1,5 @@
 import argparse
+import pprint
 
 from ObjectsCounter import ObjectsCounter
 from synonyms import get_synonyms_for
@@ -22,7 +23,6 @@ def get_cli_arguments():
 
 def filter_abstract_items(common_object_list):
     # TODO Test with the BGU connection as well.
-    # TODO alter method to match the current data structure of the object_list
     with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
         return [noun for noun in common_object_list if
                 get_abstraction_value_for_word(noun, dbConn) > MINIMAL_ABSTRACTION_VALUE]
@@ -55,7 +55,12 @@ def main():
     args = get_cli_arguments()
     sanitized_verb = sanitize_verb(args.verb)
     prototypical_objects = calculate_prototypical_objects(sanitized_verb, args.number_of_objects_to_return)
-    print(prototypical_objects)
+    print_results_pretty(sanitized_verb, prototypical_objects)
+
+
+def print_results_pretty(verb, prototypical_objects):
+    print("The verb: `{}`".format(verb))
+    pprint.pprint(prototypical_objects)
 
 
 if __name__ == '__main__':
