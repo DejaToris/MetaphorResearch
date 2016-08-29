@@ -1,6 +1,5 @@
 from unittest import TestCase
 
-import research_tools.ObjectsCounter
 from context import research_tools
 
 
