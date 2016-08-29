@@ -51,10 +51,17 @@ def sanitize_verb(target_verb):
     return sanitized_verb
 
 
+def crop_object_list(obj_list, crop_length):
+    return obj_list[:crop_length]
+
+
 def main():
     args = get_cli_arguments()
     sanitized_verb = sanitize_verb(args.verb)
-    prototypical_objects = calculate_prototypical_objects(sanitized_verb, args.number_of_objects_to_return)
+    number_of_objects = args.number_of_objects_to_return
+    prototypical_objects = crop_object_list(
+        calculate_prototypical_objects(sanitized_verb, args.number_of_objects_to_return),
+        number_of_objects)
     print_results_pretty(sanitized_verb, prototypical_objects)
 
 
