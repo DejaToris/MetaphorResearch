@@ -1,9 +1,7 @@
-import nltk
+from nltk.corpus import wordnet as wn
 
 
 def get_synonyms_for(verb):
-    if "testverb" == verb:
-        return ["testsynonym"]
-
-    synonym_sets = nltk.wordnet.wordnet.synsets(verb)
-    return [w.lemmas()[0].name() for w in synonym_sets]
+    synonym_sets = wn.synsets(verb, pos=wn.VERB)
+    synset_lemmas = [w.lemmas()[0].name() for w in synonym_sets]
+    return [x for x in set(synset_lemmas)]
