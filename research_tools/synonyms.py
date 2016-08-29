@@ -1,7 +1,8 @@
 from nltk.corpus import wordnet as wn
 
 
-def get_synonyms_for(verb):
-    synonym_sets = wn.synsets(verb, pos=wn.VERB)
+def get_synonyms_for(source_word):
+    synonym_sets = wn.synsets(source_word, pos=wn.VERB)
     synset_lemmas = [w.lemmas()[0].name() for w in synonym_sets]
-    return [x for x in set(synset_lemmas)]
+    all_synonyms = [x for x in set(synset_lemmas)]
+    return filter(lambda single_synonym: single_synonym != source_word, all_synonyms)
