@@ -11,13 +11,15 @@ def get_common_object_list(verb):
     with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
         common_objects = get_all_bigrams_for_word(verb, 0, 1, dbConn)
 
+
     return common_objects
 
 def get_all_bigrams_for_word(word, spanLeft, spanRight, conn):
     # spans = size of window to look for object.
     # expected spans: Left - 0, Right - 1 or 2 (assuming Det or Adj)
     cursor = conn.cursor()
-    cursor.execute("EXEC \"dbo\".\"GetNgrams\" \'{}\', \'2\', \'1\', \'{}\', \'{}\', \'0\'".format(word.lower(), spanLeft, spanRight))
+    ## cursor.execute("EXEC \"dbo\".\"GetNgrams\" \'{}\', \'2\', \'1\', \'{}\', \'{}\', \'0\'".format(word.lower(), spanLeft, spanRight))
+    cursor.execute("EXEC \"dbo\".\"GetNgrams\" \'{}\', \'3\', \'1\', \'{}\', \'{}\', \'0\'".format(word.lower(), spanLeft, spanRight))
     query_result = safe_fetch_all(cursor, word)
     return parse_bigrams(query_result)
 
@@ -34,7 +36,8 @@ def safe_fetch_all(cursor, word):
 def parse_bigrams(query_result):
     parsed_bigrams = []
     for item in query_result:
-        parsed_bigrams.append(COCAResultTuple(*item))
+        if item[10] != '':
+            parsed_bigrams.append(COCAResultTuple(*item))
     return parsed_bigrams
 
 

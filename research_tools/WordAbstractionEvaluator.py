@@ -15,14 +15,28 @@ INPUT_FILE = "Output.txt"
 WordAbstractionValuePair = namedtuple("WordAbstractionValue", "word abstraction_value")
 
 
+def word_is_valid(word):
+    if not word.isalpha():
+        return False
+    else:
+        try:
+            word.decode('ascii')
+        except UnicodeEncodeError:
+            return False
+        else:
+            return True
+
 def get_abstraction_value_for_word(word, conn):
     cursor = conn.cursor()
-    cursor.execute("SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE_ABSTRACT.PHRASE='{0}'".format(word.lower()))
-    query_result = cursor.fetchone()
-    if query_result:
-        return query_result[0]
+    if not word_is_valid(word):
+        return 0
     else:
-        return -1.0
+        cursor.execute("SELECT ABSTRACT_SCALE FROM PHRASE_ABSTRACT WHERE PHRASE_ABSTRACT.PHRASE='{0}'".format(word.lower()))
+        query_result = cursor.fetchone()
+        if query_result:
+            return query_result[0]
+        else:
+            return 0
 
 
 def get_non_metaphor_sets():

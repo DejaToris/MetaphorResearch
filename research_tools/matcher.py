@@ -22,18 +22,20 @@ def get_cli_arguments():
 
 
 def filter_abstract_items(common_object_list):
-    # TODO Test with the BGU connection as well.
     with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
         return [common_object_entry for common_object_entry in common_object_list if
-                get_abstraction_value_for_word(common_object_entry[0], dbConn) > MINIMAL_ABSTRACTION_VALUE]
+                # get_abstraction_value_for_word(common_object_entry[0], dbConn) > MINIMAL_ABSTRACTION_VALUE]
+                get_abstraction_value_for_word(common_object_entry[0], dbConn) < MINIMAL_ABSTRACTION_VALUE]
 
 
 def calculate_prototypical_objects(target_verb):
     objects_counter = ObjectsCounter(target_verb)
-    all_verbs = get_synonyms_for(target_verb)
+    all_verbs = get_synonyms_for(target_verb) + [target_verb]
+    # print 'all synonyms: ',  all_verbs
     with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
         for verb in all_verbs:
             common_objects = COCA.get_common_object_list(verb)
+            # print 'common objects: ', common_objects
             for obj in common_objects:
                 objects_counter.inc_object_prototypicality(obj.lemma)
 
@@ -57,18 +59,21 @@ def crop_object_list(obj_list, crop_length):
 
 def main():
     args = get_cli_arguments()
-    sanitized_verb = sanitize_verb(args.verb)
+    ## sanitized_verb = sanitize_verb(args.verb)
+    input_list = ('warm', 'sweet', 'deep', 'dark', 'hard')
+    for word in input_list:
+        sanitized_verb = sanitize_verb(word)
 
-    proto_objs = calculate_prototypical_objects(sanitized_verb)
+        proto_objs = calculate_prototypical_objects(sanitized_verb)
 
-    proto_objs_no_abstract = filter_abstract_items(proto_objs)
+        proto_objs_no_abstract = filter_abstract_items(proto_objs)
 
-    number_of_objects = args.number_of_objects_to_return
-    prototypical_objects = crop_object_list(
-        proto_objs_no_abstract,
-        number_of_objects)
+        number_of_objects = args.number_of_objects_to_return
+        prototypical_objects = crop_object_list(
+            proto_objs_no_abstract,
+            number_of_objects)
 
-    print_results_pretty(sanitized_verb, prototypical_objects)
+        print_results_pretty(sanitized_verb, prototypical_objects)
 
 
 def print_results_pretty(verb, prototypical_objects):
