@@ -6,7 +6,7 @@ from synonyms import get_synonyms_for
 import DbAccess as AbstractionDB
 from WordAbstractionEvaluator import get_abstraction_value_for_word
 import COCA
-
+# based on Turney's research on abstraction.
 MINIMAL_ABSTRACTION_VALUE = 0.5
 
 
@@ -18,14 +18,19 @@ def get_cli_arguments():
         "-n", "--number_of_objects_to_return", type=int, default=default_number_of_objects,
         help="Number of prototypical objects to match to the verb and return in the final list. "
              "Defaults to {0}.".format(default_number_of_objects))
+    parser.add_argument("-a", "--return_concrete_objects", action="store_false", default=True,
+                        help="When flagged, returns concrete objects; otherwise returns abstract objects.")
     return parser.parse_args()
 
 
-def filter_abstract_items(common_object_list):
+def filter_items_by_abs_value(common_object_list, return_concrete):
     with AbstractionDB.get_connection(AbstractionDB.AvailableConnections.bgu) as dbConn:
-        return [common_object_entry for common_object_entry in common_object_list if
-                # get_abstraction_value_for_word(common_object_entry[0], dbConn) > MINIMAL_ABSTRACTION_VALUE]
-                get_abstraction_value_for_word(common_object_entry[0], dbConn) < MINIMAL_ABSTRACTION_VALUE]
+        if return_concrete:
+            return [common_object_entry for common_object_entry in common_object_list if
+                get_abstraction_value_for_word(common_object_entry[0], dbConn) >= MINIMAL_ABSTRACTION_VALUE]
+        else:
+            return [common_object_entry for common_object_entry in common_object_list if
+                get_abstraction_value_for_word(common_object_entry[0], dbConn) <= MINIMAL_ABSTRACTION_VALUE]
 
 
 def calculate_prototypical_objects(target_verb):
@@ -58,6 +63,7 @@ def crop_object_list(obj_list, crop_length):
 
 
 def main():
+    # TODO add commandline flag to choose between VERB and ADJ source words.
     args = get_cli_arguments()
     ## sanitized_verb = sanitize_verb(args.verb)
     input_list = ('warm', 'sweet', 'deep', 'dark', 'hard')
@@ -66,7 +72,7 @@ def main():
 
         proto_objs = calculate_prototypical_objects(sanitized_verb)
 
-        proto_objs_no_abstract = filter_abstract_items(proto_objs)
+        proto_objs_no_abstract = filter_items_by_abs_value(proto_objs, args.return_concrete_objects)
 
         number_of_objects = args.number_of_objects_to_return
         prototypical_objects = crop_object_list(
